@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Pokemon Cards</title>
+    <style>
+        body{
+            font-family:arial;
+            font-size:12px;
+            background-color:white;
+        }
+
+        p{
+            margin-bottom:0;
+        }
+
+        .container{
+            width:100vw;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+        }
+
+        #block-wrapper{
+            display:grid;
+            grid-template-columns:1fr 1fr 1fr 1fr;
+            gap:0.5em;
+            width:60vw;
+            max-width:800px;
+            padding:50px;
+        }
+
+        .block{
+            padding:10px;
+            display:flex;
+            flex-direction:column;
+            /* border:0.5px dashed black; */
+        }
+
+        img{
+            width:100%;
+            height:100%;
+            user-select:none;
+        }
+
+        .description{
+            color:grey;
+            white-space:pre;
+        }
+
+        .divider{
+            width:100%;
+            height:0;
+            border:0.5px dashed black;
+        }
+
+        .card-3d-wrapper{
+            transform-style:preserve-3d;
+            border-radius:0.7vw;
+            overflow:hidden;
+            background-color:red;
+            filter:drop-shadow(0 0 2px rgba(0, 0, 0, 0.208));
+            transition:filter 0.5s cubic-bezier(.2,0,.1,1);
+        }
+
+        .card-3d-wrapper:hover{
+            filter:drop-shadow(0 0 10px rgba(0, 0, 0, 0.376));
+            z-index:99;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p>I currently own <span id="cardAmount"></span> Pokémon Cards</p>
+        <div id="block-wrapper">
+        </div>
+    </div>
+    <script src="vanilla-tilt.js"></script>
+    <script>
+        function randomArray(array){
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+
+            return array;
+        }
+        fetch("https://api.are.na/v2/channels/pokemon-cards-i-have")
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById("block-wrapper");
+            const randomOrder = randomArray([...data.contents]);
+
+            const channelLength = document.getElementById("cardAmount");
+            channelLength.innerHTML = `${data.length}`;
+
+            randomOrder.forEach(block => {
+                const cardWrapper = document.createElement("div");
+                cardWrapper.className = "card-3d-wrapper";
+
+                const blockTitle = block.title;
+
+                const img = document.createElement("img");
+                img.src = block.image.display.url;
+                img.className = "card";
+
+                cardWrapper.appendChild(img);
+                container.appendChild(cardWrapper);
+            });
+
+            VanillaTilt.init(document.querySelectorAll(".card-3d-wrapper"), {
+                max: 10,
+                reset: true,
+                reverse: true,
+                glare: true,
+                "max-glare": 0.7,
+                transition: true,
+                speed: 500,
+                scale: 1.15,
+                ease: "cubic-bezier(.2,0,.1,1)"
+            });
+        });
+    </script>
+</body>
+</html>

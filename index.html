@@ -3,16 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Pokemon Cards</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Ryan's Pokémon Cards</title>
     <style>
         body{
             font-family:arial;
             font-size:12px;
             background-color:white;
+            overflow-x:hidden;
+            margin:0;
         }
 
         p{
             margin-bottom:0;
+        }
+
+        a{
+            color:black;
         }
 
         .container{
@@ -21,28 +28,28 @@
             flex-direction:column;
             justify-content:center;
             align-items:center;
+            text-align:left;
         }
 
         #block-wrapper{
             display:grid;
-            grid-template-columns:1fr 1fr 1fr 1fr;
+            grid-template-columns:1fr 1fr 1fr 1fr 1fr;
             gap:0.5em;
-            width:60vw;
-            max-width:800px;
-            padding:50px;
+            width:100%;
         }
 
-        .block{
-            padding:10px;
-            display:flex;
-            flex-direction:column;
-            /* border:0.5px dashed black; */
+        .content-wrapper{
+            width:80vw;
+            max-width:1200px;
+            padding:50px;
+            box-sizing:border-box;
         }
 
         img{
             width:100%;
             height:100%;
             user-select:none;
+            pointer-events:none;
         }
 
         .description{
@@ -53,14 +60,15 @@
         .divider{
             width:100%;
             height:0;
-            border:0.5px dashed black;
+            border:0.5px solid black;
+            margin:20px auto;
         }
 
         .card-3d-wrapper{
             transform-style:preserve-3d;
             border-radius:0.7vw;
             overflow:hidden;
-            background-color:red;
+            background-color:grey;
             filter:drop-shadow(0 0 2px rgba(0, 0, 0, 0.208));
             transition:filter 0.5s cubic-bezier(.2,0,.1,1);
         }
@@ -69,12 +77,41 @@
             filter:drop-shadow(0 0 10px rgba(0, 0, 0, 0.376));
             z-index:99;
         }
+
+        @media only screen and (max-width: 900px) {
+            .content-wrapper{
+                width:100vw;
+                padding:20px;
+            }
+
+            #block-wrapper{
+                grid-template-columns:1fr 1fr 1fr 1fr;
+            }
+
+            .card-3d-wrapper{
+                border-radius:1.1vw;
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            #block-wrapper{
+                grid-template-columns:1fr 1fr 1fr;
+            }
+
+            .card-3d-wrapper{
+                border-radius:1.4vw;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <p>I currently own <span id="cardAmount"></span> Pokémon Cards</p>
-        <div id="block-wrapper">
+        <div class="content-wrapper">
+            <p>Ryan's Pokémon Card Collection.<br>I currently own <span id="cardAmount"></span> cards.</p>
+            <p style="color:grey">Powered by <a href="https://are.na" target="_blank">Are.na</a>, from this <a href="https://www.are.na/ryan-yan/pokemon-cards-i-have" target="_blank">channel</a>, using images from <a href="https://www.tcgcollector.com/" target="_blank">TCGCollector</a>.<br>Hover effect created using <a href="https://micku7zu.github.io/vanilla-tilt.js/" target="_blank">Tilt.js</a>, slightly modified for holo effect.<br>Order randomizes on refresh.</p>
+            <div class="divider"></div>
+            <div id="block-wrapper">
+            </div>
         </div>
     </div>
     <script src="vanilla-tilt.js"></script>
@@ -87,7 +124,7 @@
 
             return array;
         }
-        fetch("https://api.are.na/v2/channels/pokemon-cards-i-have")
+        fetch("https://api.are.na/v2/channels/pokemon-cards-i-have?per=100")
         .then(res => res.json())
         .then(data => {
             const container = document.getElementById("block-wrapper");
@@ -95,6 +132,10 @@
 
             const channelLength = document.getElementById("cardAmount");
             channelLength.innerHTML = `${data.length}`;
+
+            console.log("Total length:", data.length);
+console.log("Contents length:", data.contents.length);
+console.log("Contents:", data.contents);
 
             randomOrder.forEach(block => {
                 const cardWrapper = document.createElement("div");
